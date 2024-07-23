@@ -1,3 +1,3 @@
-~~docker-compose up -d --build
+docker-compose up -d --build
 
-docker-compose exec app bash -c  "/var/www/php-tools/phpstan_analysis.sh"
+docker-compose exec app bash -c  "/var/www/php-tools/script.sh"

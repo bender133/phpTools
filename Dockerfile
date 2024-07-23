@@ -31,8 +31,8 @@ RUN echo "alias phpstan='php /root/.composer/vendor/bin/phpstan'" >> ~/.bashrc \
     && echo "alias phpcbf='php /root/.composer/vendor/bin/phpcbf'" >> ~/.bashrc
 
 # Копирование скриптов и установка разрешений
-COPY phpstan_analysis.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/phpstan_analysis.sh
+COPY script.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/script.sh
 
 # Загрузка входной точки
 COPY entrypoint.sh /usr/local/bin/
