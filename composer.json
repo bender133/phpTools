@@ -1,0 +1,12 @@
+{
+    "name": "root/www",
+    "autoload": {
+        "psr-4": {
+            "Root\\Www\\": "src/"
+        }
+    },
+    "require": {
+        "squizlabs/php_codesniffer": "3.9",
+        "phpstan/phpstan": "*"
+    }
+}

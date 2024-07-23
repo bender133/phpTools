@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/var/www
+    environment:
+      - COMPOSER_HOME=/root/.composer
+    command: php-fpm
+    extra_hosts:
+      - "dockerhost:host-gateway"
+    working_dir: /var/www
