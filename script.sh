@@ -4,14 +4,16 @@ set -e
 
 # Базовая директория
 base_dir="/var/www"
-report_dir="/var/www/php-tools"
-report_path="$report_dir/php-tools_report.txt"
+report_dir="/var/www/php-quality-tools"
+report_path_phpstan="$report_dir/phpstan_report.txt"
+report_path_phpcs="$report_dir/phpcs_report.txt"
 
 # Путь к инструментам
 phpstan_path="/root/.composer/vendor/bin/phpstan"
 phpcs_path="/root/.composer/vendor/bin/phpcs"
 phpcbf_path="/root/.composer/vendor/bin/phpcbf"
-phpcs_config="/var/www/php-tools/phpcs.xml"   # Путь к конфигурационному файлу PHPCS
+phpcs_config="/var/www/php-quality-tools/phpcs.xml"   # Путь к конфигурационному файлу PHPCS
+phpstan_config="/var/www/php-quality-tools/phpstan.neon.dist"   # Путь к конфигурационному файлу phpstan
 
 # Дефолтные значения
 default_level=1
@@ -30,15 +32,6 @@ read -p "Введите относительный путь для сканир�
 
 # Дефолтные значения
 default_scan_type=1  # 1 - сканировать все, 0 - сканировать только изменённые файлы
-
-if [[ "$analysis_type" == "1" ]]; then
-    # Запрашиваем уровень проверки только если выбран PHPStan
-    read -p "Введите уровень проверки (0-9, по умолчанию: $default_level): " level
-    level=${level:-$default_level}
-else
-    # Устанавливаем уровень проверки по умолчанию для других инструментов
-    level=""
-fi
 
 read -p "Сканировать всё (1) или только изменённые файлы (0) (по умолчанию: $default_scan_type): " scan_type
 scan_type=${scan_type:-$default_scan_type}
@@ -71,28 +64,31 @@ if [[ "$scan_type" == "0" ]]; then
     fi
 
     # Преобразуем список файлов в абсолютные пути и разделённые пробелами
-    changed_files=$(echo "$changed_files" | sed "s|^|$git_dir/|" | tr '\n' ' ')
+    changed_files=$(echo "$changed_files" | sed "s|^|$git_dir/|" | tr '\n' ' ' | sed 's/ *$//')
 
     # Формируем команду для сканирования
-    scan_target="$changed_files"
+    scan_target=($changed_files)
 else
     # Формируем команду для сканирования всех файлов
-    scan_target="$scan_dir"
+    scan_target=("$scan_dir")
 fi
 
 # Формируем команду в зависимости от выбранного типа анализа
 case $analysis_type in
     1)
         # PHPStan
-        cmd="$phpstan_path analyse \"$scan_target\" --level=$level --error-format=table"
+        report_dir=$report_path_phpstan
+        cmd=("$phpstan_path" "analyse" "${scan_target[@]}" "--configuration=$phpstan_config" "--error-format=table")
         ;;
     2)
         # PHP_CodeSniffer - проверка на соответствие PSR
-        cmd="$phpcs_path --standard=PSR12 --ignore-annotations \"$scan_target\""
+        report_dir=$report_path_phpcs
+        cmd=("$phpcs_path" "--standard=$phpcs_config" "${scan_target[@]}")
         ;;
     3)
         # PHP_CodeSniffer - проверка и исправление на соответствие PSR
-        cmd="$phpcbf_path --standard=PSR12 --ignore-annotations \"$scan_target\""
+        report_dir=$report_path_phpcs
+        cmd=("$phpcbf_path" "--standard=$phpcs_config" "${scan_target[@]}")
         ;;
     *)
         echo "Неверный выбор типа анализа."
@@ -101,10 +97,9 @@ case $analysis_type in
 esac
 
 # Вывод команды для отладки
-echo "Команда для выполнения: $cmd > $report_path"
+echo "Команда для выполнения: ${cmd[@]}"
 
 # Выполняем команду и сохраняем отчет
-echo "Отчет будет сохранён в: $report_path"
-eval "$cmd > $report_path"
+"${cmd[@]}" > "$report_dir"
 
-echo "Анализ завершён. Отчет сохранён в $report_path."
+echo "Анализ завершён. Отчет сохранён в $report_dir."

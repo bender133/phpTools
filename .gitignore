@@ -1,4 +1,7 @@
 /.tmp/
 /.idea/
-/php-tools_report.txt
+/phpstan_report.txt
+/phpstan.neon.dist
+/phpcs.xml
 /vendor/
+/phpcs_report.txt

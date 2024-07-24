@@ -3,7 +3,7 @@ FROM php:7.4-fpm
 # Установить системные зависимости
 RUN apt-get update && apt-get install -y git dos2unix
 
-# Настроить глобальную конфигурацию Git
+# Настроить глобальную конфигурацию Git (игнорирование концов строк)
 RUN git config --global core.autocrlf input
 
 # Получить последнюю версию Composer

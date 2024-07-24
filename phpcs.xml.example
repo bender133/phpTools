@@ -3,5 +3,6 @@
     <description>PSR-12 rules with PHP 7.0 compatibility</description>
     <rule ref="PSR12">
         <exclude name="PSR12.Properties.ConstantVisibility.NotFound"/>
+         <exclude name="Generic.Files.LineEndings"/>
         </rule>
 </ruleset>
